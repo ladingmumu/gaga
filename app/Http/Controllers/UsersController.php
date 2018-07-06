@@ -30,7 +30,8 @@ class UsersController extends Controller
 
     //显示个人信息的页面
     public function show(User $user){
-        return view('users.show',compact('user'));
+        $statuses = $user->statuses()->orderBy('created_at','desc')->paginate(5);
+        return view('users.show',compact('user','statuses'));
     }
 
     //注册
@@ -118,4 +119,6 @@ class UsersController extends Controller
         session()->flash('success','成功删除');
         return redirect()->back();
     }
+
+
 }
