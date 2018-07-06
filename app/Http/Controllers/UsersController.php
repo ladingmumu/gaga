@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Auth;
+use Mail;
 
 class UsersController extends Controller
 {
@@ -12,7 +13,7 @@ class UsersController extends Controller
     public function __construct(){
         //过滤未登录操作
         $this->middleware('auth', [
-            'except' => ['show','create','store','index']
+            'except' => ['show','create','store','index','confirmEmail']
         ]);
 
         //只允许未登录用户访问
@@ -45,8 +46,35 @@ class UsersController extends Controller
                'email' => $request->email,
             'password' => bcrypt($request->password),
         ]);
+        // Auth::login($user);
+        // session()->flash('success','注册成功');
+        $this->sendEmailConfirmationTo($user);
+        session()->flash('success','验证邮件已经发送到您的注册邮箱上了，请注意查收。');
+        return redirect()->route('home');
+    }
+
+    //发送邮件给指定的用户
+    protected function sendEmailConfirmationTo($user){
+            $view = 'emails.confirm';
+            $data = compact('user');
+            $from = '295741509@qq.com';
+            $name = 'qianqian';
+              $to = $user->email;
+         $subject = '感谢注册 GAGA 应用！请确认您的邮箱。';
+
+         Mail::send($view, $data, function($message) use ($from, $name, $to, $subject){
+            $message->from($from, $name)->to($to)->subject($subject);
+         });
+    }
+
+    //用户的激活
+    public function confirmEmail($token){
+        $user = User::where('activation_token',$token)->firstOrFail();
+        $user->activation_token = null;
+        $user->activated = true;
+        $user->save();
         Auth::login($user);
-        session()->flash('success','注册成功');
+        session()->flash('success','恭喜你，激活成功');
         return redirect()->route('users.show',compact('user'));
     }
 
