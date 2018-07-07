@@ -15,7 +15,7 @@
         <form method="POST" action="{{ route('statuses.destroy',$status->id) }}">
             {{ csrf_field() }}
             {{ method_field('DELETE') }}
-            <button type="submit" class="btn btn-danger status-delete-btn btn-sm pull-right">删除</button>
+            <button type="submit" class="btn btn-danger status-delete-btn btn-sm">删除</button>
         </form>
     @endcan
 </li>
